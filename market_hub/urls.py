@@ -20,7 +20,7 @@ from django.urls import path,include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/market/',include('market_app.api.urls')),
-    #path('api/auth/',include('user_auth_app.api.urls')),
+    path('api/auth/',include('user_auth_app.api.urls')),
     #pfad um im restframework den eingeloggten user anzuzeigen
     path('api-auth',include('rest_framework.urls'))
 ]

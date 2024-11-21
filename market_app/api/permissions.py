@@ -22,10 +22,10 @@ class IsAdminForDeleteOrPatchAndReadOnly(BasePermission):
         
 class IsOwnerOrAdmin(BasePermission):
     def has_object_permission(self, request, view, obj):
+        print (request.user, obj.__dict__)
         if request.method in SAFE_METHODS:
             return True
         elif request.method == "DELETE":
             return bool(request.user and request.user.is_superuser)    
         else:
-            print(obj.user_id)
             return request.user and (request.user.id == obj.user_id or request.user.is_superuser)
