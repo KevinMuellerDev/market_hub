@@ -9,9 +9,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'bio', 'location']
 
 
-class RegistrationSerializer(serializers.Serialize):
+class RegistrationSerializer(serializers.ModelSerializer):
     repeated_password = serializers.CharField(write_only=True)
-    email = serializers.EmailField(write_only=True)
 
     class Meta:
         model = User
@@ -23,8 +22,9 @@ class RegistrationSerializer(serializers.Serialize):
         }
     
     def save(self):
+        print(self.validated_data['password'])
         pw = self.validated_data['password']
-        repeated_pw=['repeated_password']
+        repeated_pw=self.validated_data['repeated_password']
         
         if pw != repeated_pw:
             raise serializers.ValidationError({'error':'passwords dont match'})
