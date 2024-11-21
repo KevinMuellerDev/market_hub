@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.authtoken.views import ObtainAuthToken
 
 
 class UserProfileList(generics.ListCreateAPIView):
@@ -17,15 +18,17 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserProfileSerializer
 
 # View zum erhalten von registrierungsdaten und zurückspiegeln des usernames email und token
+
+
 class RegistrationView(APIView):
     # Rechte definition => erlaube alles
     permission_classes = [AllowAny]
 
     # definieren der Post reaktion
     def post(self, request):
-        #serializer definition mit übergabe der Daten Parameter
+        # serializer definition mit übergabe der Daten Parameter
         serializer = RegistrationSerializer(data=request.data)
-        #data variable die zurückgespiegelt wird wird initialisiert als leeres Dictionary
+        # data variable die zurückgespiegelt wird wird initialisiert als leeres Dictionary
         data = {}
 
         # Aktion wenn der Serializer die daten validiert hat und für valide befindet
@@ -41,7 +44,28 @@ class RegistrationView(APIView):
                 'email': saved_account.email
             }
         else:
-            #ausgabe des Serializer errors wenn daten nicht valide sind
-            data=serializer.errors
-        # Antwort auf view anfrage als response -  in diesem fall das data dictionary       
+            # ausgabe des Serializer errors wenn daten nicht valide sind
+            data = serializer.errors
+        # Antwort auf view anfrage als response -  in diesem fall das data dictionary
+        return Response(data)
+
+
+class CustomLoginView(ObtainAuthToken):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        data = {}
+
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            token, created = Token.objects.get_or_create(user=user)
+
+            data = {
+                'token': token.key,
+                'username': user.username,
+                'email': user.email
+            }
+        else:
+            data = serializer.errors
         return Response(data)
